@@ -1,0 +1,98 @@
+use simple_tauri::simple_tray;
+use simple_tauri::simple_serve;
+use simple_tauri::utils::sh2rs::sh2rs;
+use simple_tauri::utils::sh2rs::try_quote;
+use indoc::indoc;
+
+mod ipc;
+
+#[cfg(windows)]
+pub fn run() {
+    // 互斥 只能启动一个实例
+    simple_tray::mutex!();
+    // 设置ipc函数 自动扫描设定的模块
+    simple_tray::set_ipc_cmds![ipc];
+    // 窗口列表 [id 标题 url 宽 高 有边框]
+    simple_tray::set_window_list!(r#"[
+            ["main", "设置","setting.html",null,null,false],
+            ["load", "Loading","",380,280,false],
+        ]"#);
+    // 托盘菜单
+    simple_tray::set_tray_menu!(r#"[
+            ["show", "显示主界面"],
+            ["toggle"],
+            ["show-setting", "设置", "show_setting"],
+            [],
+            ["light"],
+        ]"#);
+    simple_tray::hooks!(on_tray_before, _, on_quit);
+    simple_tray::run!();
+}
+
+fn show_load_tips(s: &str){
+    simple_tray::runjs("load", &format!("document.querySelector('p.tips').innerHTML='{}'",s));
+}
+
+// 托盘创建前回调
+fn on_tray_before() -> Result<(), String> {
+    // 显示加载窗口
+    simple_tray::show_window("load");
+    sh2rs!("sleep 1").ok();
+    // 设置参数
+    let autoupdate = false;
+    let port = 1443;
+    let secret = "00102030405000102030405000102030";
+    let domain = "tgws.pages.dev";
+    // Telegram proxy link (use this on all devices):
+    // let setproxyurl = format!("tg://proxy?server=192.168.31.189&port=1443&secret=dd001020304050");
+
+    // 包类型/包名 用于检测服务版本号
+    simple_serve::set_pkg("github","valnesfjord/tg-ws-proxy-rs");
+    // 启动服务时执行的命令
+    simple_serve::set_start_cmd!(".\\tg-ws-proxy.exe --port {port} --secret {secret} --cf-worker-domain {domain}");
+    // 服务端的下载地址 加压提取目录
+    simple_serve::set_download_url(
+        |ver|format!("https://github.com/valnesfjord/tg-ws-proxy-rs/releases/download/v{}/{}"
+            ,ver
+            ,"tg-ws-proxy-x86_64-pc-windows-gnu.zip"),
+        "");
+    if autoupdate { simple_serve::enable_auto_update(); }
+
+    let show_load_tips = |s: &str|{
+        simple_tray::runjs("load", &format!("document.querySelector('p.tips').innerHTML='{}'",s));
+    };
+
+    // 检查版本更新
+    show_load_tips("检测本地服务版本");
+    let _ = simple_serve::check_update(false)?;
+    // 启动服务
+    show_load_tips("服务启动中");
+    simple_serve::start()
+        .map_err(|e| format!("服务器启动失败: {e}"))?;
+    show_load_tips("服务启动中 20%");
+    sh2rs!("sleep 1").ok();
+    show_load_tips("服务启动中 40%");
+    sh2rs!("sleep 1").ok();
+    show_load_tips("服务启动中 60%");
+    sh2rs!("sleep 1").ok();
+    show_load_tips("服务启动中 80%");
+    sh2rs!("sleep 1").ok();
+    show_load_tips("服务启动中 100%");
+    sh2rs!("sleep 1").ok();
+
+    // 关闭加载窗口
+    simple_tray::close_window("load");
+    // 显示主窗口
+    simple_tray::show_window("main");
+    Ok(())
+}
+
+// 点击"退出"时的回调
+fn on_quit() -> Result<(), String> {
+    simple_serve::stop();
+    Ok(())
+}
+
+fn show_setting() {
+    simple_tray::show_window("main");
+}
