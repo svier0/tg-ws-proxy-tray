@@ -49,7 +49,7 @@ fn on_tray_before() -> Result<(), String> {
     // 包类型/包名 用于检测服务版本号
     simple_serve::set_pkg("github","valnesfjord/tg-ws-proxy-rs");
     // 启动服务时执行的命令
-    simple_serve::set_start_cmd!(".\\tg-ws-proxy.exe --port {port} --secret {secret} --cf-worker-domain {domain}");
+    simple_serve::set_start_cmd!("./tg-ws-proxy --port {port} --secret {secret} --cf-worker-domain {domain}");
     // 服务端的下载地址 加压提取目录
     simple_serve::set_download_url(
         |ver|format!("https://github.com/valnesfjord/tg-ws-proxy-rs/releases/download/v{}/{}"
@@ -57,10 +57,6 @@ fn on_tray_before() -> Result<(), String> {
             ,"tg-ws-proxy-x86_64-pc-windows-gnu.zip"),
         "");
     if autoupdate { simple_serve::enable_auto_update(); }
-
-    let show_load_tips = |s: &str|{
-        simple_tray::runjs("load", &format!("document.querySelector('p.tips').innerHTML='{}'",s));
-    };
 
     // 检查版本更新
     show_load_tips("检测本地服务版本");

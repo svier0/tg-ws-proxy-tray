@@ -14,13 +14,13 @@ pub fn ipc_server_version() -> String {
 /// 获取最新版本号
 #[tauri::command]
 pub fn ipc_latest_ver() -> String {
-    simple_tauri::utils::get_npm_latest_ver("@deepseek-ai/dsh").to_string()
+    simple_tauri::utils::get_gh_latest_ver("@deepseek-ai/dsh").to_string()
 }
 
 /// 获取服务端最新版本号
 #[tauri::command]
 pub fn ipc_server_latest_ver() -> String {
-    simple_tauri::utils::get_npm_latest_ver("@deepseek-ai/dsh").to_string()
+    simple_tauri::utils::get_gh_latest_ver("@deepseek-ai/dsh").to_string()
 }
 
 /// 获取配置列表
