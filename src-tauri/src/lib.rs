@@ -1,15 +1,18 @@
 use simple_tauri::simple_tray;
 use simple_tauri::simple_serve;
 use simple_tauri::utils::sh2rs::sh2rs;
-use simple_tauri::utils::sh2rs::try_quote;
-use indoc::indoc;
+// use simple_tauri::utils::sh2rs::try_quote;
+// use indoc::indoc;
 
 mod ipc;
+mod config;
 
 #[cfg(windows)]
 pub fn run() {
     // 互斥 只能启动一个实例
     simple_tray::mutex!();
+    // 初始化配置文件
+    config::init();
     // 设置ipc函数 自动扫描设定的模块
     simple_tray::set_ipc_cmds![ipc];
     // 窗口列表 [id 标题 url 宽 高 有边框]
