@@ -133,7 +133,7 @@ if (serverSwitch) {
         serverLocked = true;
         serverSwitch.disabled = true;
         try {
-            await invoke("ipc_server_action", { running: serverSwitch.checked });
+            await invoke("ipc_server_action", { action: serverSwitch.checked?"start":"stop" });
         } catch (e) {
             console.error("切换代理状态失败:", e);
             refreshServerStatus();
