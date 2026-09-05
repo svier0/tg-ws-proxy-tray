@@ -15,7 +15,7 @@ const DEFAULT: &str = r#"
     // 端口
     "port": 1443,
     // 密钥
-    "secret": "00102030405000102030405000102030",
+    "secret": "",
     // workers域名
     "domain": "",
 }
@@ -26,5 +26,9 @@ const PATH: &str = "data/config.json";
 /// 初始化配置文件
 pub fn init(){
 	config::set_default(DEFAULT);
-	config::load(PATH).expect("REASON");
+	config::load(PATH).expect("");
+    if config::get_str("secret").unwrap_or_default().is_empty() {
+        let secret = simple_tauri::utils::rand::nano(32);
+        let _ = config::set("secret",secret);
+    }
 }

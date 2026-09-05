@@ -1,4 +1,3 @@
-
 use simple_tauri::simple_tray::ipc_result;
 
 // 导入默认接口
