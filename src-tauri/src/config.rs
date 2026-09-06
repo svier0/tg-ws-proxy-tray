@@ -27,7 +27,7 @@ const PATH: &str = "data/config.json";
 /// 初始化配置文件
 pub fn init(){
 	config::set_default(DEFAULT);
-	config::load(PATH).expect("");
+	config::load(PATH).ok();
     if config::get_or!("secret",String::new()).is_empty() {
         let secret = simple_tauri::utils::rand::nano(32);
         let _ = config::set("secret",secret);
