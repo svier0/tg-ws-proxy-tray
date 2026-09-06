@@ -1,4 +1,12 @@
-const invoke = (window.__TAURI__|| {core:{invoke:ipc=>new Promise((x,y)=>{y('请通过客户端运行')})}}).core.invoke
+const invoke = async(name,param) => {
+    const notauri = {core:{invoke:ipc=>new Promise((x,y)=>{y('请通过客户端运行')})}};
+    const invoke = (window.__TAURI__|| notauri).core.invoke;
+    try{
+        return await invoke(`ipc_${name}`, param);
+    }catch(e){
+        return {code:1,msg:e};
+    }
+};
 
 const pages_callback = {};
 
@@ -38,10 +46,9 @@ menuItems.forEach((item) => {
 
 switchMap.forEach(({ key, el }) => {
     el.addEventListener("change", async () => {
-        try {
-            await invoke("ipc_set_config", { key, val: el.checked });
-        } catch (e) {
-            console.error(`写入配置 ${key} 失败:`, e);
+        let r = await invoke("set_config", { key, val: el.checked });
+        if (r.code>0) {
+            console.error(`写入配置 ${key} 失败:`, r.msg);
             el.checked = !el.checked;
         }
     });
@@ -53,57 +60,60 @@ if (saveConfigBtn) {
         textMap.forEach(({ key, el }) => {
             configs[key]=el.value;
         });
-        try {
-            await invoke("ipc_set_configs", configs);
-        } catch (e) {
-            console.error("写入配置失败:", e);
+        let r = await invoke("set_configs", configs);
+        if (r.code>0) {
+            console.error("写入配置失败:", r.msg);
         }
     });
 }
 
 pages_callback["logs"] = async () => {
-    try {
-        const logs = await invoke("ipc_server_logs");
-        if (logsContent) {
-            logsContent.textContent = logs || "暂无日志";
-            logsContent.scrollTop = logsContent.scrollHeight;
-        }
-    } catch (e) {
-        console.error("读取日志失败:", e);
+    let r = await invoke("server_logs");
+    if (r.code>0) {
+        console.error("读取日志失败:", r.msg);
+        return;
+    }
+    const logs = r.data;
+    if (logsContent) {
+        logsContent.textContent = logs || "暂无日志";
+        logsContent.scrollTop = logsContent.scrollHeight;
     }
 };
 
 async function loadConfig() {
-    try {
-        const cfg = await invoke("ipc_config");
-        switchMap.forEach(({ key, el }) => {
-            if (el) el.checked = !!cfg[key];
-        });
-        textMap.forEach(({ key, el }) => {
-            if (el) el.value = cfg[key];
-        });
-    } catch (e) {
-        console.error("读取配置失败:", e);
+    let r = await invoke("ipc_config");
+    if (r.code>0) {
+        console.error("读取配置失败:", r.msg);
+        return;
     }
+    const cfg = r.data;
+    switchMap.forEach(({ key, el }) => {
+        if (el) el.checked = !!cfg[key];
+    });
+    textMap.forEach(({ key, el }) => {
+        if (el) el.value = cfg[key];
+    });
 }
 
 async function loadVersion() {
-    try {
-        const version = await invoke("ipc_version");
-        const el = document.querySelector(".about-version");
-        if (el) el.textContent = "v" + version;
-    } catch (e) {
-        console.error("读取版本失败:", e);
+    let r = await invoke("ipc_version");
+    if (r.cdoe>0) {
+        console.error("读取版本失败:", r.msg);
+        return;
     }
+    const version = r.data;
+    const el = document.querySelector(".about-version");
+    if (el) el.textContent = "v" + version;
 }
 
 async function refreshServerStatus() {
-    try {
-        const running = await invoke("ipc_server_status");
-        if (serverSwitch) serverSwitch.checked = running;
-    } catch (e) {
-        console.error("读取服务状态失败:", e);
+    let r = await invoke("ipc_server_status");
+    if (r.code>0) {
+        console.error("读取服务状态失败:", r.msg);
+        return;
     }
+    const running = r.data;
+    if (serverSwitch) serverSwitch.checked = running;
 }
 
 const serverSwitch = document.getElementById("switch-server");
@@ -117,17 +127,15 @@ if (serverSwitch) {
         }
         serverLocked = true;
         serverSwitch.disabled = true;
-        try {
-            await invoke("ipc_server_action", { action: serverSwitch.checked?"start":"stop" });
-        } catch (e) {
-            console.error("切换代理状态失败:", e);
+        let r = await invoke("ipc_server_action", { action: serverSwitch.checked?"start":"stop" });
+        if (r.code>0) {
+            console.error("切换代理状态失败:", r.msg);
             refreshServerStatus();
-        } finally {
-            setTimeout(() => {
-                serverLocked = false;
-                serverSwitch.disabled = false;
-            }, 1000);
         }
+        setTimeout(() => {
+            serverLocked = false;
+            serverSwitch.disabled = false;
+        }, 1000);
     });
 }
 
