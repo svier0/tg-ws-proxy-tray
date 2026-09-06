@@ -2,20 +2,20 @@ const invoke = (window.__TAURI__|| {core:{invoke:ipc=>new Promise((x,y)=>{y('请
 
 const pages = {
     general: "page-general",
-    logs: "page-logs",
-    about: "page-about",
+    logs:    "page-logs",
+    about:   "page-about",
 };
 const pages_callback = {};
 
 const switchMap = [
-    { id: "switch-autostart", key: "AUTOSTART" },
-    { id: "switch-auto-run", key: "AUTO_RUN" },
+    { id: "switch-autostart",     key: "AUTOSTART" },
+    { id: "switch-auto-run",      key: "AUTO_RUN" },
     { id: "switch-silent-launch", key: "SILENT_LAUNCH" },
-    { id: "switch-autoupdate", key: "AUTOUPDATE" },
+    { id: "switch-autoupdate",    key: "AUTOUPDATE" },
 ];
 
 const textMap = [
-    { id: "text-server-port", key: "SERVER_PORT"},
+    { id: "text-server-port",   key: "SERVER_PORT"},
     { id: "text-server-secret", key: "SERVER_SECRET"},
     { id: "text-server-domain", key: "SERVER_DOMAIN"},
 ];

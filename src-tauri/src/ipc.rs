@@ -1,7 +1,6 @@
 use simple_tauri::simple_tray::ipc_result;
 
 // 导入默认接口
-// 不支持通配符pub use xxx::*;
 #[allow(unused_imports)]
 pub use simple_tauri::ipc_default::{
     ipc_server_version,

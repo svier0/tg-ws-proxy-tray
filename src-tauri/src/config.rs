@@ -1,5 +1,6 @@
 
 use simple_tauri::config;
+pub use simple_tauri::config::get_or;
 
 /// 默认配置（JSONC）
 const DEFAULT: &str = r#"
@@ -27,7 +28,7 @@ const PATH: &str = "data/config.json";
 pub fn init(){
 	config::set_default(DEFAULT);
 	config::load(PATH).expect("");
-    if config::get_str("secret").unwrap_or_default().is_empty() {
+    if config::get_or!("secret",String::new()).is_empty() {
         let secret = simple_tauri::utils::rand::nano(32);
         let _ = config::set("secret",secret);
     }
