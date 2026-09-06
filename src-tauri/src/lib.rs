@@ -41,12 +41,12 @@ fn show_load_tips(s: &str){
 // 托盘创建前回调
 fn on_tray_before() -> Result<(), String> {
     // 设置参数
-    let auto_run = config::get_or!("auto_run",false);
+    let auto_run      = config::get_or!("auto_run",false);
     let silent_launch = config::get_or!("silent_launch",false);
-    let auto_update = config::get_or!("auto_update",false);
-    let port = config::get_or!("port",1443);
-    let secret = config::get_or!("secret","");
-    let domain = config::get_or!("domain","");
+    let auto_update   = config::get_or!("auto_update",false);
+    let port          = config::get_or!("port",1443);
+    let secret        = config::get_or!("secret","");
+    let domain        = config::get_or!("domain","");
     // Telegram proxy link (use this on all devices):
     // let setproxyurl = format!("tg://proxy?...");
 
