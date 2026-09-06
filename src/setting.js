@@ -1,16 +1,3 @@
-const switchMap = [
-    { id: "switch-auto-start",    key: "auto_start" },
-    { id: "switch-auto-run",      key: "auto_run" },
-    { id: "switch-silent-launch", key: "silent_launch" },
-    { id: "switch-auto-update",   key: "auto_update" },
-];
-
-const textMap = [
-    { id: "text-server-port",   key: "port"},
-    { id: "text-server-secret", key: "secret"},
-    { id: "text-server-domain", key: "domain"},
-];
-
 const invoke = (window.__TAURI__|| {core:{invoke:ipc=>new Promise((x,y)=>{y('请通过客户端运行')})}}).core.invoke
 
 const pages_callback = {};
@@ -23,25 +10,33 @@ const saveConfigBtn = document.getElementById("btn-save-config");
 
 const logsContent = document.getElementById("logs-content");
 
+const switchMap = [...document.querySelectorAll(".config-switch[data-key]")].map(el => ({
+    key: el.dataset.key,
+    el,
+}));
+
+const textMap = [...document.querySelectorAll(".config-text[data-key]")].map(el => ({
+    key: el.dataset.key,
+    el,
+}));
+
 menuItems.forEach((item) => {
     item.addEventListener("click", () => {
         const page = item.dataset.page;
         if (typeof pages_callback[page] == "function") {
             pages_callback[page]();
         }
-        let elpage = pageContents.getElementById(`page-${page}`);
+        let elpage = document.getElementById(`page-${page}`);
         if (!elpage) return;
 
         menuItems.forEach((i) => i.classList.remove("active"));
         item.classList.add("active");
 
-        pageContents.forEach((i) => i.hidden = i.id==`page-${page}`);
+        pageContents.forEach((i) => i.hidden = i.id!=`page-${page}`);
     });
 });
 
-switchMap.forEach(({ id, key }) => {
-    const el = document.getElementById(id);
-    if (!el) return;
+switchMap.forEach(({ key, el }) => {
     el.addEventListener("change", async () => {
         try {
             await invoke("ipc_set_config", { key, val: el.checked });
@@ -55,20 +50,18 @@ switchMap.forEach(({ id, key }) => {
 if (saveConfigBtn) {
     saveConfigBtn.addEventListener("click", async () => {
         let configs = {};
-        textMap.forEach(({ id, key }) => {
-            const el = document.getElementById(id);
-            if (!el) return;
+        textMap.forEach(({ key, el }) => {
             configs[key]=el.value;
         });
         try {
             await invoke("ipc_set_configs", configs);
         } catch (e) {
-            console.error(`写入配置 ${key} 失败:`, e);
+            console.error("写入配置失败:", e);
         }
     });
 }
 
-pages_callback["logs"] = () => {
+pages_callback["logs"] = async () => {
     try {
         const logs = await invoke("ipc_server_logs");
         if (logsContent) {
@@ -83,12 +76,10 @@ pages_callback["logs"] = () => {
 async function loadConfig() {
     try {
         const cfg = await invoke("ipc_config");
-        switchMap.forEach(({ id, key }) => {
-            const el = document.getElementById(id);
+        switchMap.forEach(({ key, el }) => {
             if (el) el.checked = !!cfg[key];
         });
-        textMap.forEach(({ id, key }) => {
-            const el = document.getElementById(id);
+        textMap.forEach(({ key, el }) => {
             if (el) el.value = cfg[key];
         });
     } catch (e) {
