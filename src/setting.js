@@ -81,7 +81,7 @@ pages_callback["logs"] = async () => {
 };
 
 async function loadConfig() {
-    let r = await invoke("ipc_config");
+    let r = await invoke("config");
     if (r.code>0) {
         console.error("读取配置失败:", r.msg);
         return;
@@ -96,7 +96,7 @@ async function loadConfig() {
 }
 
 async function loadVersion() {
-    let r = await invoke("ipc_version");
+    let r = await invoke("version");
     if (r.cdoe>0) {
         console.error("读取版本失败:", r.msg);
         return;
@@ -107,7 +107,7 @@ async function loadVersion() {
 }
 
 async function refreshServerStatus() {
-    let r = await invoke("ipc_server_status");
+    let r = await invoke("server_status");
     if (r.code>0) {
         console.error("读取服务状态失败:", r.msg);
         return;
@@ -127,7 +127,7 @@ if (serverSwitch) {
         }
         serverLocked = true;
         serverSwitch.disabled = true;
-        let r = await invoke("ipc_server_action", { action: serverSwitch.checked?"start":"stop" });
+        let r = await invoke("server_action", { action: serverSwitch.checked?"start":"stop" });
         if (r.code>0) {
             console.error("切换代理状态失败:", r.msg);
             refreshServerStatus();

@@ -46,7 +46,7 @@ pub(super) fn on_tray_before() -> Result<(), String> {
 
     if auto_run {
         // 启动服务
-        show_load_tips("服务启动中");
+        show_load_tips("服务启动中 ...");
         simple_serve::start()
             .map_err(|e| format!("服务器启动失败: {e}"))?;
         show_load_tips("服务启动中 20%");
