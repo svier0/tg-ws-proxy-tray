@@ -222,6 +222,7 @@ body>main { flex: 1; /* 内容区 */ }
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text);
+  justify-items: end;
 }
 
 .btn {

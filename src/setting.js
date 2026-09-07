@@ -60,7 +60,7 @@ if (saveConfigBtn) {
         textMap.forEach(({ key, el }) => {
             configs[key]=el.value;
         });
-        let r = await invoke("set_configs", configs);
+        let r = await invoke("set_configs", {configs});
         if (r.code>0) {
             console.error("写入配置失败:", r.msg);
         }
