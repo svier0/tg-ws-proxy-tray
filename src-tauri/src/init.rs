@@ -13,17 +13,14 @@ fn show_load_tips(s: &str){
 // 托盘创建前回调
 pub(super) fn on_tray_before() -> Result<(), String> {
     // 设置参数
-    let auto_run      = config::get_or!("auto_run",false);
     let silent_launch = config::get_or!("silent_launch",false);
-    let auto_update   = config::get_or!("auto_update",false);
+    let auto_run      = config::get_or!("auto_run",false);
     let port          = config::get_or!("port",1443);
     let secret        = config::get_or!("secret","");
     let domain        = config::get_or!("domain","");
     // Telegram proxy link (use this on all devices):
     // let setproxyurl = format!("tg://proxy?...");
 
-    // 包类型/包名 用于检测服务版本号
-    simple_serve::set_pkg("github","valnesfjord/tg-ws-proxy-rs");
     // 启动服务时执行的命令
     simple_serve::set_start_cmd!("./tg-ws-proxy --port {port} --secret {secret} --cf-worker-domain {domain}");
     // 服务端的下载地址 加压提取目录
@@ -32,7 +29,6 @@ pub(super) fn on_tray_before() -> Result<(), String> {
             ,ver
             ,"tg-ws-proxy-x86_64-pc-windows-gnu.zip"),
         "");
-    if auto_update { simple_serve::enable_auto_update(); }
 
     if !silent_launch {
         // 显示加载窗口
@@ -42,7 +38,7 @@ pub(super) fn on_tray_before() -> Result<(), String> {
 
     // 检查版本更新
     show_load_tips("检测本地服务版本");
-    let _ = simple_serve::check_update(auto_update)?;
+    simple_serve::auto_check_update()?;
 
     if auto_run {
         // 启动服务
