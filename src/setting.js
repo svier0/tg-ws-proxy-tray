@@ -1,5 +1,6 @@
+const notauri = {app:{getVersion:()=>"0.0.0"},core:{invoke:ipc=>new Promise((x,y)=>{y('请通过客户端运行')})}};
+const app = (window.__TAURI__|| notauri).app;
 const invoke = async(name,param) => {
-    const notauri = {core:{invoke:ipc=>new Promise((x,y)=>{y('请通过客户端运行')})}};
     const invoke = (window.__TAURI__|| notauri).core.invoke;
     try{
         return await invoke(`ipc_${name}`, param);
@@ -96,14 +97,13 @@ async function loadConfig() {
 }
 
 async function loadVersion() {
-    let r = await invoke("version");
-    if (r.cdoe>0) {
-        console.error("读取版本失败:", r.msg);
-        return;
-    }
-    const version = r.data;
+    const version = await app.getVersion();
     const el = document.querySelector(".about-version");
     if (el) el.textContent = "v" + version;
+    const appName = await app.getName();
+    const el_name = document.querySelector(".about-name");
+    if (el_name) el_name.textContent = appName;
+
 }
 
 async function refreshServerStatus() {
