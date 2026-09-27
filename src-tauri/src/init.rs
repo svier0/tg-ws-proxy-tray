@@ -22,7 +22,7 @@ pub(super) fn on_tray_before() -> Result<(), String> {
     // let setproxyurl = format!("tg://proxy?...");
 
     // 启动服务时执行的命令
-    simple_serve::set_start_cmd!("./tg-ws-proxy --port {port} --secret {secret} --cf-worker-domain {domain}");
+    simple_serve::set_start_cmd!("tg-ws-proxy --port {port} --secret {secret} --cf-worker-domain {domain}");
     // 服务端的下载地址 加压提取目录
     simple_serve::set_download_url(
         |ver|format!("https://github.com/valnesfjord/tg-ws-proxy-rs/releases/download/v{}/{}"

@@ -17,6 +17,7 @@
         ["show-setting", "设置", "@show_setting"],
         [],
         ["light"],
+        [],
     ],
     "hooks":{
         "on_tauri_before":"@config::init",
